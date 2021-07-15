@@ -1,0 +1,35 @@
+# Script Starts here...
+# NEED! Netwatch monitor that will enable the ISPMonitor script in system scheduler on down using ":system scheduler IPSMonitor;"
+# Host to be checked You can modify them as per required
+:local host1   "8.8.8.8"
+:local host2   "4.2.2.3"
+# Do not modify data below without proper understanding.
+:local i 0;
+:local F 0;
+:global InternetStatus;
+# PING each host 5 times, if all 5 pings timeout ISP is DOWN
+:for i from=1 to=5 do={
+if ([/ping $host1 count=1]=0) do={:set $F ($F + 1)}
+if ([/ping $host2 count=1]=0) do={:set $F ($F + 1)}
+:delay 1;
+};
+# If ISP is DOWN; log, disable wifi, set $internetstatus="DOWN"
+:if (($F=10)) do={
+:if (($InternetStatus="UP")) do={
+:log error "WARNING: Internet DOWN & WiFi Disabled";
+:interface wireless disable wlan1;
+:interface wireless disable wlan2;
+:set InternetStatus "DOWN";
+} else={:set InternetStatus "DOWN";}
+} else={
+##  If ISP is UP; log, enable wifi, and disable ISPMonitor script in System Scheduler 
+:if (($InternetStatus="DOWN")) do={
+:log error "WARNING: Internet Status UP & WiFi Enabled";
+:interface wireless enable wlan1;
+:interface wireless enable wlan2;
+:set InternetStatus "UP";
+} else={:set InternetStatus "UP";
+:system scheduler disable ISPMonitor;}
+}
+# Script Ends Here.
+# Thank you
