@@ -1,0 +1,4 @@
+### Netwatch Population Script / Script will add all static IP's to netwatch, copy comment to netwatch, set interval to 10 and set up and down scripts to log comment as up or down respectively. 
+:foreach leaseId in=[/ip dhcp-server lease find where !dynamic] do=[
+:local ip [/ip dhcp-server lease get $leaseId address];:local comment [/ip dhcp-server lease get $leaseId comment];
+:tool netwatch add host=$ip comment=$comment interval="10" down-script=":log info $comment is DOWN" up-script=":log info $comment is UP";:log info "Added $comment to Netwatch"]

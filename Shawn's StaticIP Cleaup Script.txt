@@ -1,0 +1,10 @@
+### Static IP Cleanup Script - will take host-name of all static IP's that DO NOT have existing comments, then insert host-name into comment, remove client-id, and set server to "all"... This will not overwrite any lease-id values that have an existing comments.
+:foreach leaseId in=[/ip dhcp-server lease find where !comment && !dynamic] do=[
+:local ip [/ip dhcp-server lease get $leaseId address];
+:local hostname [/ip dhcp-server lease get $leaseId host-name];
+:ip dhcp-server lease set $leaseId comment="$hostname"
+:log info "set Static IP $ip comment to $hostname"
+:ip dhcp-server lease set $leaseId client-id (default)
+:log info "$ip Client-ID Removed"
+:ip dhcp-server lease set $leaseId server "all"
+:log info "$ip server set to ALL"]
